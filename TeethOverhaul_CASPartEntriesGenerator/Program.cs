@@ -68,20 +68,26 @@ namespace Destrospean.TeethOverhaul_CASPartEntriesGenerator
             }
 
             // Copy the elements from the XML to put into the new package
-            var rootNode = xmlDocument.SelectSingleNode("TeethCASParts");
-            var elements = new List<System.Xml.XmlElement>();
+            System.Xml.XmlNode rootNode = xmlDocument.SelectSingleNode("Teeth");
+            List<System.Xml.XmlElement> casPartElements = new List<System.Xml.XmlElement>(),
+            categoryElements = new List<System.Xml.XmlElement>();
             foreach (System.Xml.XmlNode node in rootNode.ChildNodes)
             {
-                if (node.Name == "CASPart" && !elements.Exists(x => node.Attributes["Key"].Value == x.GetAttribute("Key")))
+                if (node.Name == "CASPart" && !casPartElements.Exists(x => node.Attributes["Key"].Value == x.GetAttribute("Key")))
                 {
-                    elements.Add((System.Xml.XmlElement)node);
+                    casPartElements.Add((System.Xml.XmlElement)node);
+                }
+                if (node.Name == "Category" && !categoryElements.Exists(x => node.Attributes["ID"].Value == x.GetAttribute("ID")))
+                {
+                    categoryElements.Add((System.Xml.XmlElement)node);
                 }
             }
-            elements.RemoveAt(0);
+            casPartElements.RemoveAt(0);
+            categoryElements.RemoveAt(0);
             rootNode.RemoveAll();
-            foreach (var element in elements)
+            foreach (var casPartElement in casPartElements)
             {
-                rootNode.AppendChild(element);
+                rootNode.AppendChild(casPartElement);
             }
 
             // Rename the assembly for the new package
@@ -106,9 +112,13 @@ namespace Destrospean.TeethOverhaul_CASPartEntriesGenerator
                 var stblKeyInstance = ulong.Parse(i.ToString("X2") + s3saKeyInstance.ToString("X16").Substring(2), System.Globalization.NumberStyles.HexNumber);
                 var stblName = "Strings_" + ((Locales)i).ToString() + "_0x" + stblKeyInstance.ToString("X16");
                 stblResources[i] = new StblResource.StblResource(0, null);
-                foreach (var element in elements)
+                foreach (var categoryElement in categoryElements)
                 {
-                    stblResources[i].Add(ulong.Parse(element.GetAttribute("Key").Substring(24), System.Globalization.NumberStyles.HexNumber), element.GetAttribute("Description") ?? "");
+                    stblResources[i].Add(System.Security.Cryptography.FNV64.GetHash("TeethOverhaul/TeethCategories:" + categoryElement.GetAttribute("ID")), categoryElement.GetAttribute("Path") ?? "");
+                }
+                foreach (var casPartElement in casPartElements)
+                {
+                    stblResources[i].Add(ulong.Parse(casPartElement.GetAttribute("Key").Substring(24), System.Globalization.NumberStyles.HexNumber), casPartElement.GetAttribute("Description") ?? "");
                 }
                 newPackage.AddResource(new ResourceKey(0x220557DA, 0, stblKeyInstance), stblResources[i].Stream, true);
                 nameMapResource.Add(stblKeyInstance, stblName);

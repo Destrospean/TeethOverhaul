@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
-<TeethCASParts>
+<Teeth>
   <!-- DO NOT REMOVE THE ENTRY BELOW -->
-  <CASPart Key="0x034AEECB-0x00000000-0x################" Description="(Insert English Description Here)" />
+  <!-- The ID is what will be the end of the STBL key for the path. Paths can be nested via using {%//} to separate them into parts of the path -->
+  <Category ID="Insert ID Here" Path="Insert{%//}Path{%//}In{%//}English{%//}Here" />
   <!-- DO NOT REMOVE THE ENTRY ABOVE -->
-</TeethCASParts>
+
+  <!-- DO NOT REMOVE THE ENTRY BELOW -->
+  <CASPart Key="0x034AEECB-0x00000000-0x################" Description="Insert English Description Here" />
+  <!-- DO NOT REMOVE THE ENTRY ABOVE -->
+</Teeth>

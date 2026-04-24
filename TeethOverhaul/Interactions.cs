@@ -92,11 +92,13 @@ namespace TeethOverhaul
 
                 public override string[] GetPath(bool isFemale)
                 {
-                    return new[]
-                    {
-                        Localization.LocalizeString(isFemale, kLocalizationPath + ":Path"),
-                        Localization.LocalizeString(isFemale, sLocalizationKey + ":Path")
-                    };
+                    System.Collections.Generic.List<string> path = new System.Collections.Generic.List<string>
+                        {
+                            Localization.LocalizeString(isFemale, kLocalizationPath + ":Path"),
+                            Localization.LocalizeString(isFemale, sLocalizationKey + ":Path")
+                        };
+                    path.AddRange(System.Array.Find(TeethUtils.TeethCASPartEntries, x => x.CASPart.Equals(CASPart)).GetPath(isFemale));
+                    return path.ToArray();
                 }
 
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)

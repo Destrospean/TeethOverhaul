@@ -8,32 +8,44 @@ namespace TeethOverhaul
 {
     public static class TeethUtils
     {
-        static CASPart[] sDefaultTeethCASParts, sTeethCASParts;
+        static TeethCASPartEntry[] sTeethCASPartEntries;
 
-        public static CASPart[] DefaultTeethCASParts
+        [PersistableStatic(true)]
+        public static List<ulong> SimsWithCustomTeeth = new List<ulong>();
+
+        public static TeethCASPartEntry[] TeethCASPartEntries
         {
             get
             {
-                if (sDefaultTeethCASParts == null)
+                if (sTeethCASPartEntries == null)
                 {
-                    LoadTeethCASParts();
+                    InitTeethCASParts();
                 }
-                return sDefaultTeethCASParts;
+                return sTeethCASPartEntries;
             }
         }
 
-        [PersistableStatic(true)]
-        public static readonly List<ulong> SimsWithCustomTeeth = new List<ulong>();
-
-        public static CASPart[] TeethCASParts
+        public class TeethCASPartEntry
         {
-            get
+            public CASPart CASPart;
+
+            public string CategoryID;
+
+            public bool Default;
+
+            public TeethCASPartEntry(CASPart casPart, string categoryID, bool isDefault)
             {
-                if (sTeethCASParts == null)
-                {
-                    LoadTeethCASParts();
-                }
-                return sTeethCASParts;
+                CASPart = casPart;
+                CategoryID = categoryID ?? "";
+                Default = isDefault;
+            }
+
+            public string[] GetPath(bool isFemale)
+            {
+                return Sims3.Gameplay.Utilities.Localization.LocalizeString(isFemale, "TeethOverhaul/TeethCategories:" + CategoryID).Split(new[]
+                    {
+                        "{%//}"
+                    }, StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
@@ -63,11 +75,11 @@ namespace TeethOverhaul
             simBuilder.PrepareForOutfit(outfit);
             simBuilder.RemoveParts(BodyTypes.Face);
             simBuilder.AddPart(toothlessFaceCASPartKey);
-            foreach (CASPart part in TeethCASParts)
+            foreach (TeethCASPartEntry teethCASPartEntry in TeethCASPartEntries)
             {
-                if (Array.Exists(outfit.Parts, x => x.Equals(part)))
+                if (Array.Exists(outfit.Parts, x => x.Equals(teethCASPartEntry.CASPart)))
                 {
-                    simBuilder.RemovePart(part);
+                    simBuilder.RemovePart(teethCASPartEntry.CASPart);
                 }
             }
             simBuilder.AddPart(casPart);
@@ -110,7 +122,7 @@ namespace TeethOverhaul
 
         public static CASPart[] GetValidTeethCASParts(this SimDescription simDescription)
         {
-            return Array.FindAll(TeethCASParts, x => x.Key != ResourceKey.kInvalidResourceKey && (x.Age & simDescription.Age) != 0 && (x.Gender & simDescription.Gender) != 0 && (x.Species & simDescription.Species) != 0);
+            return Array.FindAll(Array.ConvertAll(TeethCASPartEntries, x => x.CASPart), x => x.Key != ResourceKey.kInvalidResourceKey && (x.Age & simDescription.Age) != 0 && (x.Gender & simDescription.Gender) != 0 && (x.Species & simDescription.Species) != 0);
         }
 
         public static bool HasCustomTeeth(this SimDescription simDescription)
@@ -118,15 +130,9 @@ namespace TeethOverhaul
             return SimsWithCustomTeeth.Contains(simDescription.SimDescriptionId);
         }
 
-        public static bool IsDefault(this CASPart casPart)
+        public static void InitTeethCASParts()
         {
-            return Array.Exists(DefaultTeethCASParts, x => x.Equals(casPart));
-        }
-
-        public static void LoadTeethCASParts()
-        {
-            List<CASPart> defaultTeethCASParts = new List<CASPart>(),
-            teethCASParts = new List<CASPart>();
+            List<TeethCASPartEntry> teethCASPartEntries = new List<TeethCASPartEntry>();
             foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assembly.GetType("TeethOverhaul.Data") == null)
@@ -138,7 +144,7 @@ namespace TeethOverhaul
                 {
                     if (reader.NodeType == System.Xml.XmlNodeType.Element)
                     {
-                        if (reader.Name == "TeethCASParts")
+                        if (reader.Name == "Teeth")
                         {
                             reader.MoveToContent();
                         }
@@ -146,25 +152,25 @@ namespace TeethOverhaul
                         {
                             CASPart casPart = new CASPart(S3PIResourceUtils.FromS3PIFormatKeyString(reader.GetAttribute("Key")));
                             bool isDefault;
-                            if (bool.TryParse(reader.GetAttribute("Default") ?? "False", out isDefault) && isDefault)
-                            {
-                                defaultTeethCASParts.Add(casPart);
-                            }
-                            teethCASParts.Add(casPart);
+                            teethCASPartEntries.Add(new TeethCASPartEntry(casPart, reader.GetAttribute("CategoryID"), bool.TryParse(reader.GetAttribute("Default") ?? "False", out isDefault) && isDefault));
                         }
                     }
                 }
                 reader.Close();
             }
-            sDefaultTeethCASParts = defaultTeethCASParts.ToArray();
-            sTeethCASParts = teethCASParts.ToArray();
+            sTeethCASPartEntries = teethCASPartEntries.ToArray();
+        }
+
+        public static bool IsDefault(this CASPart casPart)
+        {
+            return Array.Find(TeethCASPartEntries, x => x.CASPart.Equals(casPart)).Default;
         }
 
         public static bool TryGetTeethCASPart(this SimOutfit outfit, out CASPart? casPart)
         {
             foreach (CASPart part in outfit.Parts)
             {
-                if (Array.Exists(TeethCASParts, x => x.Equals(part)))
+                if (Array.Exists(TeethCASPartEntries, x => x.CASPart.Equals(part)))
                 {
                     casPart = part;
                     return true;
