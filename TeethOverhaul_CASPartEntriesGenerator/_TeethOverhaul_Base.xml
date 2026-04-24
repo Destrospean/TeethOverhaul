@@ -2,7 +2,7 @@
 <Teeth>
   <!-- DO NOT REMOVE THE ENTRY BELOW -->
   <!-- The ID is what will be the end of the STBL key for the path. Paths can be nested via using {%//} to separate them into parts of the path -->
-  <Category ID="Insert ID Here" Path="Insert{%//}Path{%//}In{%//}English{%//}Here" />
+  <Category ID="Insert ID Here" Path="Insert...{%//}Path...{%//}In...{%//}English...{%//}Here..." />
   <!-- DO NOT REMOVE THE ENTRY ABOVE -->
 
   <!-- DO NOT REMOVE THE ENTRY BELOW -->
