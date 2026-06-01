@@ -3,9 +3,9 @@ using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.CAS;
 using Sims3.Gameplay.EventSystem;
 using Sims3.SimIFace;
-using Tuning = Sims3.Gameplay.TeethOverhaul.Settings;
+using Tuning = Sims3.Gameplay.SimsVerse.TeethOverhaul;
 
-namespace TeethOverhaul
+namespace SimsVerse.TeethOverhaul
 {
     public class Main
     {

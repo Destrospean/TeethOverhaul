@@ -1,4 +1,4 @@
-﻿namespace TeethOverhaul
+﻿namespace SimsVerse.TeethOverhaul
 {
     public static class S3PIResourceUtils
     {

@@ -4,7 +4,7 @@ using Sims3.Gameplay.CAS;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 
-namespace TeethOverhaul
+namespace SimsVerse.TeethOverhaul
 {
     public static class TeethUtils
     {
@@ -31,13 +31,14 @@ namespace TeethOverhaul
 
             public string CategoryID;
 
-            public bool Default;
+            public bool Default, ValidForRandom;
 
-            public TeethCASPartEntry(CASPart casPart, string categoryID, bool isDefault)
+            public TeethCASPartEntry(CASPart casPart, string categoryID, bool isDefault, bool isValidForRandom)
             {
                 CASPart = casPart;
                 CategoryID = categoryID ?? "";
                 Default = isDefault;
+                ValidForRandom = isValidForRandom;
             }
 
             public string[] GetPath(bool isFemale)
@@ -51,10 +52,10 @@ namespace TeethOverhaul
 
         public static void ApplyRandomTeethToAllOutfits(this SimDescription simDescription)
         {
-            CASPart[] validCASParts = simDescription.GetValidTeethCASParts();
-            if (validCASParts.Length > 0)
+            TeethCASPartEntry[] validForRandomTeeth = Array.FindAll(simDescription.GetValidTeeth(), x => x.ValidForRandom);
+            if (validForRandomTeeth.Length > 0)
             {
-                simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, validCASParts[Sims3.Gameplay.Core.RandomUtil.GetInt(0, validCASParts.Length - 1)]));
+                simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, validForRandomTeeth[Sims3.Gameplay.Core.RandomUtil.GetInt(0, validForRandomTeeth.Length - 1)].CASPart));
             }
         }
 
@@ -120,9 +121,9 @@ namespace TeethOverhaul
             return OutfitUtils.GetAgePrefix(simDescription.Age) + (simDescription.ChildOrBelow ? "u" : OutfitUtils.GetGenderPrefix(simDescription.Gender)) + "Face";
         }
 
-        public static CASPart[] GetValidTeethCASParts(this SimDescription simDescription)
+        public static TeethCASPartEntry[] GetValidTeeth(this SimDescription simDescription)
         {
-            return Array.FindAll(Array.ConvertAll(TeethCASPartEntries, x => x.CASPart), x => x.Key != ResourceKey.kInvalidResourceKey && (x.Age & simDescription.Age) != 0 && (x.Gender & simDescription.Gender) != 0 && (x.Species & simDescription.Species) != 0);
+            return Array.FindAll(TeethCASPartEntries, x => x.CASPart.Key != ResourceKey.kInvalidResourceKey && (x.CASPart.Age & simDescription.Age) != 0 && (x.CASPart.Gender & simDescription.Gender) != 0 && (x.CASPart.Species & simDescription.Species) != 0);
         }
 
         public static bool HasCustomTeeth(this SimDescription simDescription)
@@ -151,8 +152,8 @@ namespace TeethOverhaul
                         else if (reader.Name == "CASPart")
                         {
                             CASPart casPart = new CASPart(S3PIResourceUtils.FromS3PIFormatKeyString(reader.GetAttribute("Key")));
-                            bool isDefault;
-                            teethCASPartEntries.Add(new TeethCASPartEntry(casPart, reader.GetAttribute("CategoryID"), bool.TryParse(reader.GetAttribute("Default") ?? "False", out isDefault) && isDefault));
+                            bool isDefault, isValidForRandom;
+                            teethCASPartEntries.Add(new TeethCASPartEntry(casPart, reader.GetAttribute("CategoryID"), bool.TryParse(reader.GetAttribute("Default"), out isDefault) && isDefault, !bool.TryParse(reader.GetAttribute("ValidForRandom"), out isValidForRandom) || isValidForRandom));
                         }
                     }
                 }

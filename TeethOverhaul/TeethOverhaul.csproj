@@ -8,8 +8,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>TeethOverhaul</RootNamespace>
-    <AssemblyName>TeethOverhaul</AssemblyName>
+    <RootNamespace>SimsVerse.TeethOverhaul</RootNamespace>
+    <AssemblyName>SimsVerse.TeethOverhaul</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>

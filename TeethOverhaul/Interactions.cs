@@ -4,9 +4,9 @@ using Sims3.Gameplay.Interactions;
 using Sims3.Gameplay.Utilities;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
-using Tuning = Sims3.Gameplay.TeethOverhaul.Settings;
+using Tuning = Sims3.Gameplay.SimsVerse.TeethOverhaul;
 
-namespace TeethOverhaul
+namespace SimsVerse.TeethOverhaul
 {
     public class Interactions
     {
@@ -71,9 +71,9 @@ namespace TeethOverhaul
 
                 public override void AddInteractions(InteractionObjectPair iop, Sim actor, Sim target, System.Collections.Generic.List<InteractionObjectPair> results)
                 {
-                    foreach (CASPart casPart in target.SimDescription.GetValidTeethCASParts())
+                    foreach (TeethUtils.TeethCASPartEntry teethCASPartEntry in target.SimDescription.GetValidTeeth())
                     {
-                        results.Add(new InteractionObjectPair(new Definition(casPart), target));
+                        results.Add(new InteractionObjectPair(new Definition(teethCASPartEntry.CASPart), target));
                     }
                 }
 

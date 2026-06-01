@@ -1,8 +1,8 @@
 ﻿using Sims3.SimIFace;
 
-namespace Sims3.Gameplay.TeethOverhaul
+namespace Sims3.Gameplay.SimsVerse
 {
-    public class Settings
+    public class TeethOverhaul
     {
         [Tunable]
         public static bool kAutoRandomizeTeethOnSimAgeTransition;
