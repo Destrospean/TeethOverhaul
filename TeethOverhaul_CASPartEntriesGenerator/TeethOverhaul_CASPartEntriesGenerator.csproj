@@ -8,6 +8,7 @@
     <RootNamespace>Destrospean.TeethOverhaul_CASPartEntriesGenerator</RootNamespace>
     <AssemblyName>TeethOverhaul_CASPartEntriesGenerator</AssemblyName>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <ApplicationIcon>TeethOverhaul.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -179,5 +180,6 @@
     <None Include="_TeethOverhaul_Base.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TeethOverhaul.ico" />
   </ItemGroup>
 </Project>

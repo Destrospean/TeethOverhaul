@@ -42,10 +42,10 @@ namespace SimsVerse.TeethOverhaul
                         {
                             try
                             {
-                                SimDescriptionEvent simDescriptionEvent = evt as SimDescriptionEvent;
-                                if (simDescriptionEvent != null)
+                                Sim sim = evt.TargetObject as Sim;
+                                if (sim != null)
                                 {
-                                    simDescriptionEvent.SimDescription.DisableCustomTeeth(true);
+                                    sim.SimDescription.DisableCustomTeeth(true);
                                 }
                             }
                             catch (Exception ex)
@@ -58,13 +58,13 @@ namespace SimsVerse.TeethOverhaul
                         {
                             try
                             {
-                                SimDescriptionEvent simDescriptionEvent = evt as SimDescriptionEvent;
-                                if (simDescriptionEvent != null)
+                                Sim sim = evt.TargetObject as Sim;
+                                if (sim != null)
                                 {
-                                    AddInteractions(simDescriptionEvent.SimDescription.CreatedSim);
+                                    AddInteractions(sim);
                                     if (Tuning.kAutoRandomizeTeethOnSimInstantiated)
                                     {
-                                        simDescriptionEvent.SimDescription.ApplyRandomTeethToAllOutfits();
+                                        sim.SimDescription.ApplyRandomTeethToAllOutfits();
                                     }
                                 }
                             }
