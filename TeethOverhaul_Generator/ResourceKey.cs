@@ -1,6 +1,6 @@
 ﻿using s3pi.Interfaces;
 
-namespace Destrospean.TeethOverhaul_CASPartEntriesGenerator
+namespace Destrospean.TeethOverhaul.Generator
 {
     public class ResourceKey : IResourceKey
     {

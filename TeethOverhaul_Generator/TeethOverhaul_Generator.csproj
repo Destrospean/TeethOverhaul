@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{95B27166-5E72-4116-9E53-3AC352B8BC47}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Destrospean.TeethOverhaul_CASPartEntriesGenerator</RootNamespace>
-    <AssemblyName>TeethOverhaul_CASPartEntriesGenerator</AssemblyName>
+    <RootNamespace>Destrospean.TeethOverhaul.Generator</RootNamespace>
+    <AssemblyName>TeethOverhaul_Generator</AssemblyName>
     <UseMSBuildEngine>False</UseMSBuildEngine>
     <ApplicationIcon>TeethOverhaul.ico</ApplicationIcon>
   </PropertyGroup>
@@ -155,14 +155,6 @@
     </Reference>
     <Reference Include="s3pi.WrapperDealer">
       <HintPath>libs\s3pi.WrapperDealer.dll</HintPath>
-    </Reference>
-    <Reference Include="s3piwrappers.AudioResources">
-      <HintPath>libs\s3piwrappers.AudioResources.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="s3piwrappers.Helpers">
-      <HintPath>libs\s3piwrappers.Helpers.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System.Custom">
       <HintPath>libs\System.Custom.dll</HintPath>

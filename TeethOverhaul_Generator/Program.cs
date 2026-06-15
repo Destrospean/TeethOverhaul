@@ -5,7 +5,7 @@ using System.Xml;
 using Mono.Cecil;
 using s3pi.Interfaces;
 
-namespace Destrospean.TeethOverhaul_CASPartEntriesGenerator
+namespace Destrospean.TeethOverhaul.Generator
 {
     class Program
     {
