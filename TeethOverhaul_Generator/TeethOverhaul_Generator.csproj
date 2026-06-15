@@ -155,6 +155,7 @@
     </Reference>
     <Reference Include="s3pi.WrapperDealer">
       <HintPath>libs\s3pi.WrapperDealer.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Custom">
       <HintPath>libs\System.Custom.dll</HintPath>
@@ -180,8 +181,7 @@
       <Link>TeethOverhaul_Base.dll</Link>
       <LogicalName>TeethOverhaul_Base.dll</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="_TeethOverhaul_Base.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <EmbeddedResource Include="Template.xml">
       <LogicalName>TeethOverhaul_Base.xml</LogicalName>
     </EmbeddedResource>
   </ItemGroup>

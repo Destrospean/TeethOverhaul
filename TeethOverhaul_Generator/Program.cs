@@ -38,12 +38,6 @@ namespace Destrospean.TeethOverhaul.Generator
 
         public static void Main(string[] args)
         {
-            Console.Write("Specify a unique suffix for the batch of CASPart entries (leave blank for a random number suffix): ");
-
-            // Get a unique name for the assembly and _XML resource
-            string identifier = Console.ReadLine(),
-            assemblyName = "TeethOverhaul_" + (string.IsNullOrEmpty(identifier) ? System.Security.Cryptography.FNV32.GetHash(Guid.NewGuid().ToString()).ToString() : identifier);
-
             // Load the base package and create a new package to clone to
             var newPackage = s3pi.Package.Package.NewPackage(0);
 
@@ -52,12 +46,24 @@ namespace Destrospean.TeethOverhaul.Generator
             var xmlDocument = new XmlDocument();
             if (args.Length == 0)
             {
-                xmlDocument.Load(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.xml"));
+                var templateXMLPath = AppDomain.CurrentDomain.BaseDirectory + "Template.xml";
+                if (!File.Exists(templateXMLPath))
+                {
+                    File.WriteAllText(templateXMLPath, new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.xml")).ReadToEnd());
+                    return; 
+                }
+                xmlDocument.Load(templateXMLPath);
             }
             else
             {
                 xmlDocument.Load(args[0]);
             }
+
+            Console.Write("Specify a unique suffix for the batch of CASPart entries (leave blank for a random number suffix): ");
+
+            // Get a unique name for the assembly and _XML resource
+            string identifier = Console.ReadLine(),
+            assemblyName = "TeethOverhaul_" + (string.IsNullOrEmpty(identifier) ? System.Security.Cryptography.FNV32.GetHash(Guid.NewGuid().ToString()).ToString() : identifier);
 
             // Copy the elements from the XML to put into the new package
             XmlNode rootNode = xmlDocument.SelectSingleNode("Teeth");
@@ -124,7 +130,7 @@ namespace Destrospean.TeethOverhaul.Generator
                 }.Stream, true);
 
             // Save the new package with the new name
-            newPackage.SaveAs(assemblyName + ".package");
+            newPackage.SaveAs(AppDomain.CurrentDomain.BaseDirectory + assemblyName + ".package");
         }
     }
 }
