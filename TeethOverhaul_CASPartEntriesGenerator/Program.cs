@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Mono.Cecil;
 using s3pi.Interfaces;
 
@@ -44,42 +45,33 @@ namespace Destrospean.TeethOverhaul_CASPartEntriesGenerator
             assemblyName = "TeethOverhaul_" + (string.IsNullOrEmpty(identifier) ? System.Security.Cryptography.FNV32.GetHash(Guid.NewGuid().ToString()).ToString() : identifier);
 
             // Load the base package and create a new package to clone to
-            IPackage basePackage = s3pi.Package.Package.OpenPackage(0, "_TeethOverhaul_Base.package"),
-            newPackage = s3pi.Package.Package.NewPackage(0);
+            var newPackage = s3pi.Package.Package.NewPackage(0);
 
             // Get the assembly and XML
-            AssemblyDefinition assembly = null;
-            var xmlDocument = new System.Xml.XmlDocument();
-            xmlDocument.Load(args.Length == 0 ? "_TeethOverhaul_Base.xml" : args[0]);
-            foreach (var resourceIndexEntry in basePackage.FindAll(x => x.Instance == System.Security.Cryptography.FNV64.GetHash("TeethOverhaul_Base")))
+            AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.dll"));
+            var xmlDocument = new XmlDocument();
+            if (args.Length == 0)
             {
-                switch (resourceIndexEntry.ResourceType)
-                {
-                    case 0x73FAA07:
-                        assembly = AssemblyDefinition.ReadAssembly(((ScriptResource.ScriptResource)s3pi.WrapperDealer.WrapperDealer.GetResource(0, basePackage, resourceIndexEntry)).Assembly.BaseStream);
-                        break;
-                }
+                xmlDocument.Load(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.xml"));
             }
-
-            // Return early if no assembly is found
-            if (assembly == null)
+            else
             {
-                return;
+                xmlDocument.Load(args[0]);
             }
 
             // Copy the elements from the XML to put into the new package
-            System.Xml.XmlNode rootNode = xmlDocument.SelectSingleNode("Teeth");
-            List<System.Xml.XmlElement> casPartElements = new List<System.Xml.XmlElement>(),
-            categoryElements = new List<System.Xml.XmlElement>();
-            foreach (System.Xml.XmlNode node in rootNode.ChildNodes)
+            XmlNode rootNode = xmlDocument.SelectSingleNode("Teeth");
+            List<XmlElement> casPartElements = new List<XmlElement>(),
+            categoryElements = new List<XmlElement>();
+            foreach (XmlNode node in rootNode.ChildNodes)
             {
                 if (node.Name == "CASPart" && !casPartElements.Exists(x => node.Attributes["Key"].Value == x.GetAttribute("Key")))
                 {
-                    casPartElements.Add((System.Xml.XmlElement)node);
+                    casPartElements.Add((XmlElement)node);
                 }
                 if (node.Name == "Category" && !categoryElements.Exists(x => node.Attributes["ID"].Value == x.GetAttribute("ID")))
                 {
-                    categoryElements.Add((System.Xml.XmlElement)node);
+                    categoryElements.Add((XmlElement)node);
                 }
             }
             casPartElements.RemoveAt(0);

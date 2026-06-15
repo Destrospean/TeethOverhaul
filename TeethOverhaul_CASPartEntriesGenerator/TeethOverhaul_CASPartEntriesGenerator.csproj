@@ -174,12 +174,23 @@
     <None Include="LICENSE.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="_TeethOverhaul_Base.package">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="_TeethOverhaul_Base.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="TeethOverhaul.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TeethOverhaul_Base\TeethOverhaul_Base.csproj">
+      <Project>{E6A29044-2388-4687-B3BA-06AD5C4DE6A3}</Project>
+      <Name>TeethOverhaul_Base</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\TeethOverhaul_Base\bin\Release\TeethOverhaul_Base.dll">
+      <Link>TeethOverhaul_Base.dll</Link>
+      <LogicalName>TeethOverhaul_Base.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="_TeethOverhaul_Base.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <LogicalName>TeethOverhaul_Base.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
