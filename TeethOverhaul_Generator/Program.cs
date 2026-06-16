@@ -41,8 +41,7 @@ namespace Destrospean.TeethOverhaul.Generator
             // Create a new package to clone to
             var newPackage = s3pi.Package.Package.NewPackage(0);
 
-            // Get the assembly and XML
-            AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.dll"));
+            // Get the XML
             var xmlDocument = new XmlDocument();
             if (args.Length == 0)
             {
@@ -65,8 +64,11 @@ namespace Destrospean.TeethOverhaul.Generator
             string identifier = Console.ReadLine(),
             assemblyName = "TeethOverhaul_" + (string.IsNullOrEmpty(identifier) ? System.Security.Cryptography.FNV32.GetHash(Guid.NewGuid().ToString()).ToString() : identifier);
 
+            // Get the assembly
+            var assembly = AssemblyDefinition.ReadAssembly(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.dll"));
+
             // Copy the elements from the XML to put into the new package
-            XmlNode rootNode = xmlDocument.SelectSingleNode("Teeth");
+            var rootNode = xmlDocument.SelectSingleNode("Teeth");
             List<XmlElement> casPartElements = new List<XmlElement>(),
             categoryElements = new List<XmlElement>();
             foreach (XmlNode node in rootNode.ChildNodes)
