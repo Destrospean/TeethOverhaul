@@ -38,7 +38,7 @@ namespace Destrospean.TeethOverhaul.Generator
 
         public static void Main(string[] args)
         {
-            // Load the base package and create a new package to clone to
+            // Create a new package to clone to
             var newPackage = s3pi.Package.Package.NewPackage(0);
 
             // Get the assembly and XML
