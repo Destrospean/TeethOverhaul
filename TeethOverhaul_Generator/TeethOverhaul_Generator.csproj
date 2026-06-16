@@ -6,7 +6,7 @@
     <ProjectGuid>{95B27166-5E72-4116-9E53-3AC352B8BC47}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Destrospean.TeethOverhaul.Generator</RootNamespace>
-    <AssemblyName>TeethOverhaul_Generator</AssemblyName>
+    <AssemblyName>SimsVerse_TeethOverhaul_Generator</AssemblyName>
     <UseMSBuildEngine>False</UseMSBuildEngine>
     <ApplicationIcon>TeethOverhaul.ico</ApplicationIcon>
   </PropertyGroup>

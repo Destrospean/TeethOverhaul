@@ -4,11 +4,11 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("TeethOverhaul_Generator")]
+[assembly: AssemblyTitle("Teeth Overhaul Generator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TeethOverhaul_Generator")]
+[assembly: AssemblyProduct("Teeth Overhaul Generator")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
