@@ -52,7 +52,7 @@ namespace SimsVerse.TeethOverhaul
                 {
                     continue;
                 }
-                for (int i = outfits.Count - 1; i > -1 ; i--)
+                for (int i = outfits.Count - 1; i > -1; i--)
                 {
                     if (simDescription.CreatedSim == null || outfitCategory != lastOutfitCategory || i != lastOutfitIndex || !spin)
                     {
