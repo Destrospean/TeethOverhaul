@@ -152,7 +152,6 @@ namespace SimsVerse.TeethOverhaul
             simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) =>
                 {
                     simBuilder.PrepareForOutfit(simDescription.GetOutfit(outfitCategory, outfitIndex));
-                    simBuilder.RemovePart(teeth.Value);
                     simBuilder.RemoveParts(BodyTypes.Face);
                     simBuilder.AddPart(new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName()), 0x34AEECB, 0));
                     return new SimOutfit(simBuilder.CacheOutfit(string.Format("DisableCustomTeeth_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
