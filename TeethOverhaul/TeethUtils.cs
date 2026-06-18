@@ -8,24 +8,23 @@ namespace SimsVerse.TeethOverhaul
 {
     public static class TeethUtils
     {
-        static TeethCASPartEntry[] sTeethCASPartEntries;
+        static TeethEntry[] sTeethEntries;
 
-        [PersistableStatic(true)]
-        public static List<ulong> SimsWithCustomTeeth = new List<ulong>();
+        public static Dictionary<SimDescription, CASPart> SimTeethMap = new Dictionary<SimDescription, CASPart>();
 
-        public static TeethCASPartEntry[] TeethCASPartEntries
+        public static TeethEntry[] TeethEntries
         {
             get
             {
-                if (sTeethCASPartEntries == null)
+                if (sTeethEntries == null)
                 {
-                    InitTeethCASParts();
+                    InitTeeth();
                 }
-                return sTeethCASPartEntries;
+                return sTeethEntries;
             }
         }
 
-        public class TeethCASPartEntry
+        public class TeethEntry
         {
             public CASPart CASPart;
 
@@ -33,10 +32,10 @@ namespace SimsVerse.TeethOverhaul
 
             public bool Default, ValidForRandom;
 
-            public TeethCASPartEntry(CASPart casPart, string categoryID, bool isDefault, bool isValidForRandom)
+            public TeethEntry(CASPart casPart, string categoryID, bool isDefault, bool isValidForRandom)
             {
                 CASPart = casPart;
-                CategoryID = categoryID ?? "";
+                CategoryID = categoryID;
                 Default = isDefault;
                 ValidForRandom = isValidForRandom;
             }
@@ -52,68 +51,40 @@ namespace SimsVerse.TeethOverhaul
 
         public static void ApplyRandomTeethToAllOutfits(this SimDescription simDescription)
         {
-            TeethCASPartEntry[] validForRandomTeeth = Array.FindAll(simDescription.GetValidTeeth(), x => x.ValidForRandom);
+            CASPart? teeth;
+            TeethEntry[] validForRandomTeeth = Array.FindAll(simDescription.GetValidTeeth(), x => x.ValidForRandom && !(simDescription.TryGetTeeth(out teeth) && teeth.Equals(x.CASPart)));
             if (validForRandomTeeth.Length > 0)
             {
-                simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, validForRandomTeeth[Sims3.Gameplay.Core.RandomUtil.GetInt(0, validForRandomTeeth.Length - 1)].CASPart));
+                simDescription.ApplyTeethToAllOutfits(validForRandomTeeth[Sims3.Gameplay.Core.RandomUtil.GetInt(0, validForRandomTeeth.Length - 1)].CASPart);
             }
         }
 
-        public static void ApplyTeethToAllOutfits(this SimDescription simDescription, CASPart casPart)
+        public static void ApplyTeethToAllOutfits(this SimDescription simDescription, CASPart teeth)
         {
-            simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, casPart));
+            SimTeethMap[simDescription] = teeth;
+            simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, teeth));
         }
 
-        public static SimOutfit ApplyTeethToOutfit(this SimDescription simDescription, SimBuilder simBuilder, OutfitCategories outfitCategory, int outfitIndex, CASPart casPart)
+        public static SimOutfit ApplyTeethToOutfit(this SimDescription simDescription, SimBuilder simBuilder, OutfitCategories outfitCategory, int outfitIndex, CASPart teeth)
         {
             SimOutfit outfit = simDescription.GetOutfit(outfitCategory, outfitIndex);
-            ResourceKey toothlessFaceCASPartKey = new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName() + "_Toothless"), 0x034AEECB, 0);
+            ResourceKey toothlessFaceCASPartKey = new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName() + "_Toothless"), 0x34AEECB, 0);
             if (toothlessFaceCASPartKey == ResourceKey.kInvalidResourceKey)
             {
                 return outfit;
             }
-            simDescription.EnableCustomTeeth();
             simBuilder.PrepareForOutfit(outfit);
             simBuilder.RemoveParts(BodyTypes.Face);
             simBuilder.AddPart(toothlessFaceCASPartKey);
-            foreach (TeethCASPartEntry teethCASPartEntry in TeethCASPartEntries)
+            foreach (TeethEntry teethEntry in TeethEntries)
             {
-                if (Array.Exists(outfit.Parts, x => x.Equals(teethCASPartEntry.CASPart)))
+                if (Array.Exists(outfit.Parts, x => x.Equals(teethEntry.CASPart)))
                 {
-                    simBuilder.RemovePart(teethCASPartEntry.CASPart);
+                    simBuilder.RemovePart(teethEntry.CASPart);
                 }
             }
-            simBuilder.AddPart(casPart);
+            simBuilder.AddPart(teeth);
             return new SimOutfit(simBuilder.CacheOutfit(string.Format("ApplyTeethToOutfit_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
-        }
-
-        public static void DisableCustomTeeth(this SimDescription simDescription, bool simDescriptionIsDisposed = false)
-        {
-            if (simDescription.HasCustomTeeth())
-            {
-                SimsWithCustomTeeth.Remove(simDescription.SimDescriptionId);
-            }
-            CASPart? casPart;
-            if (simDescriptionIsDisposed || !simDescription.TryGetTeethCASPart(out casPart))
-            {
-                return;
-            }
-            simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) =>
-                {
-                    simBuilder.PrepareForOutfit(simDescription.GetOutfit(outfitCategory, outfitIndex));
-                    simBuilder.RemovePart(casPart.Value);
-                    simBuilder.RemoveParts(BodyTypes.Face);
-                    simBuilder.AddPart(new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName()), 0x34AEECB, 0));
-                    return new SimOutfit(simBuilder.CacheOutfit(string.Format("DisableCustomTeeth_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
-                });
-        }
-
-        public static void EnableCustomTeeth(this SimDescription simDescription)
-        {
-            if (!simDescription.HasCustomTeeth())
-            {
-                SimsWithCustomTeeth.Add(simDescription.SimDescriptionId);
-            }
         }
 
         public static string GetFacePartName(this SimDescription simDescription)
@@ -121,19 +92,19 @@ namespace SimsVerse.TeethOverhaul
             return OutfitUtils.GetAgePrefix(simDescription.Age) + (simDescription.ChildOrBelow ? "u" : OutfitUtils.GetGenderPrefix(simDescription.Gender)) + "Face";
         }
 
-        public static TeethCASPartEntry[] GetValidTeeth(this SimDescription simDescription)
+        public static TeethEntry[] GetValidTeeth(this SimDescription simDescription)
         {
-            return Array.FindAll(TeethCASPartEntries, x => x.CASPart.Key != ResourceKey.kInvalidResourceKey && (x.CASPart.Age & simDescription.Age) != 0 && (x.CASPart.Gender & simDescription.Gender) != 0 && (x.CASPart.Species & simDescription.Species) != 0);
+            return Array.FindAll(TeethEntries, x => x.CASPart.Key != ResourceKey.kInvalidResourceKey && (x.CASPart.Age & simDescription.Age) != 0 && (x.CASPart.Gender & simDescription.Gender) != 0 && (x.CASPart.Species & simDescription.Species) != 0);
         }
 
         public static bool HasCustomTeeth(this SimDescription simDescription)
         {
-            return SimsWithCustomTeeth.Contains(simDescription.SimDescriptionId);
+            return SimTeethMap.ContainsKey(simDescription);
         }
 
-        public static void InitTeethCASParts()
+        public static void InitTeeth()
         {
-            List<TeethCASPartEntry> teethCASPartEntries = new List<TeethCASPartEntry>();
+            List<TeethEntry> teethEntries = new List<TeethEntry>();
             foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assembly.GetType("TeethOverhaul.Data") == null)
@@ -151,49 +122,92 @@ namespace SimsVerse.TeethOverhaul
                         }
                         else if (reader.Name == "CASPart")
                         {
-                            CASPart casPart = new CASPart(S3PIResourceUtils.FromS3PIFormatKeyString(reader.GetAttribute("Key")));
+                            CASPart teeth = new CASPart(S3PIResourceUtils.FromS3PIFormatKeyString(reader.GetAttribute("Key")));
                             bool isDefault, isValidForRandom;
-                            teethCASPartEntries.Add(new TeethCASPartEntry(casPart, reader.GetAttribute("CategoryID"), bool.TryParse(reader.GetAttribute("Default"), out isDefault) && isDefault, !bool.TryParse(reader.GetAttribute("ValidForRandom"), out isValidForRandom) || isValidForRandom));
+                            teethEntries.Add(new TeethEntry(teeth, reader.GetAttribute("CategoryID"), bool.TryParse(reader.GetAttribute("Default"), out isDefault) && isDefault, !bool.TryParse(reader.GetAttribute("ValidForRandom"), out isValidForRandom) || isValidForRandom));
                         }
                     }
                 }
                 reader.Close();
             }
-            sTeethCASPartEntries = teethCASPartEntries.ToArray();
+            sTeethEntries = teethEntries.ToArray();
         }
 
-        public static bool IsDefault(this CASPart casPart)
+        public static bool IsDefault(this CASPart teeth)
         {
-            return Array.Find(TeethCASPartEntries, x => x.CASPart.Equals(casPart)).Default;
+            return Array.Find(TeethEntries, x => x.CASPart.Equals(teeth)).Default;
         }
 
-        public static bool TryGetTeethCASPart(this SimOutfit outfit, out CASPart? casPart)
+        public static void ResetTeeth(this SimDescription simDescription, bool simDescriptionIsDisposed = false)
+        {
+            if (simDescription.HasCustomTeeth())
+            {
+                SimTeethMap.Remove(simDescription);
+            }
+            CASPart? teeth;
+            if (simDescriptionIsDisposed || !simDescription.TryGetTeeth(out teeth))
+            {
+                return;
+            }
+            simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) =>
+                {
+                    simBuilder.PrepareForOutfit(simDescription.GetOutfit(outfitCategory, outfitIndex));
+                    simBuilder.RemovePart(teeth.Value);
+                    simBuilder.RemoveParts(BodyTypes.Face);
+                    simBuilder.AddPart(new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName()), 0x34AEECB, 0));
+                    return new SimOutfit(simBuilder.CacheOutfit(string.Format("DisableCustomTeeth_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
+                });
+        }
+
+        public static void ResolveWhetherSimHasCustomTeeth(this Sims3.Gameplay.Actors.Sim sim)
+        {
+            if (sim.SimDescription != null)
+            {
+                sim.SimDescription.ResolveWhetherSimHasCustomTeeth();
+            }
+        }
+
+        public static void ResolveWhetherSimHasCustomTeeth(this SimDescription simDescription)
+        {
+            CASPart? teeth;
+            if (simDescription.TryGetTeeth(out teeth))
+            {
+                SimTeethMap[simDescription] = teeth.Value;
+            }
+        }
+
+        public static bool TryGetTeeth(this SimOutfit outfit, out CASPart? teeth)
         {
             foreach (CASPart part in outfit.Parts)
             {
-                if (Array.Exists(TeethCASPartEntries, x => x.CASPart.Equals(part)))
+                if (Array.Exists(TeethEntries, x => x.CASPart.Equals(part)))
                 {
-                    casPart = part;
+                    teeth = part;
                     return true;
                 }
             }
-            casPart = null;
+            teeth = null;
             return false;
         }
 
-        public static bool TryGetTeethCASPart(this SimDescription simDescription, out CASPart? casPart)
+        public static bool TryGetTeeth(this SimDescription simDescription, out CASPart? teeth)
         {
+            if (simDescription.HasCustomTeeth())
+            {
+                teeth = SimTeethMap[simDescription];
+                return true;
+            }
             foreach (OutfitCategories outfitCategory in simDescription.ListOfCategories)
             {
                 for (int i = 0; i < simDescription.GetOutfitCount(outfitCategory); i++)
                 {
-                    if (simDescription.GetOutfit(outfitCategory, i).TryGetTeethCASPart(out casPart))
+                    if (simDescription.GetOutfit(outfitCategory, i).TryGetTeeth(out teeth))
                     {
                         return true;
                     }
                 }
             }
-            casPart = null;
+            teeth = null;
             return false;
         }
     }

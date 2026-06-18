@@ -26,9 +26,14 @@ namespace SimsVerse.TeethOverhaul
                                 SimDescriptionEvent simDescriptionEvent = evt as SimDescriptionEvent;
                                 if (simDescriptionEvent != null)
                                 {
-                                    if (Tuning.kAutoRandomizeTeethOnSimAgeTransition)
+                                    SimDescription simDescription = simDescriptionEvent.SimDescription;
+                                    if (simDescription.YoungAdultOrAbove && simDescription.HasCustomTeeth())
                                     {
-                                        simDescriptionEvent.SimDescription.ApplyRandomTeethToAllOutfits();
+                                        simDescription.ApplyTeethToAllOutfits(TeethUtils.SimTeethMap[simDescription]);
+                                    }
+                                    else if (Tuning.kAutoRandomizeTeethOnSimAgeTransition && simDescription.TeenOrBelow)
+                                    {
+                                        simDescription.ApplyRandomTeethToAllOutfits();
                                     }
                                 }
                             }
@@ -45,7 +50,7 @@ namespace SimsVerse.TeethOverhaul
                                 Sim sim = evt.TargetObject as Sim;
                                 if (sim != null)
                                 {
-                                    sim.SimDescription.DisableCustomTeeth(true);
+                                    sim.SimDescription.ResetTeeth(true);
                                 }
                             }
                             catch (Exception ex)
@@ -62,7 +67,8 @@ namespace SimsVerse.TeethOverhaul
                                 if (sim != null)
                                 {
                                     AddInteractions(sim);
-                                    if (Tuning.kAutoRandomizeTeethOnSimInstantiated)
+                                    Sims3.SimIFace.CAS.CASPart? teeth;
+                                    if (Tuning.kAutoRandomizeTeethOnSimInstantiated && !sim.SimDescription.TryGetTeeth(out teeth))
                                     {
                                         sim.SimDescription.ApplyRandomTeethToAllOutfits();
                                     }
@@ -77,6 +83,7 @@ namespace SimsVerse.TeethOverhaul
                     foreach (Sim sim in Sims3.Gameplay.Queries.GetObjects<Sim>())
                     {
                         AddInteractions(sim);
+                        sim.ResolveWhetherSimHasCustomTeeth();
                     }
                 };
             World.sOnWorldQuitEventHandler += (sender, e) =>
@@ -95,8 +102,11 @@ namespace SimsVerse.TeethOverhaul
             if (sim != null)
             {
                 sim.AddInteraction(Interactions.ApplyRandomTeeth.Singleton, true);
+                sim.AddInteraction(Interactions.ApplyRandomTeeth.SingletonCheat, true);
                 sim.AddInteraction(Interactions.ApplyTeeth.Singleton, true);
-                sim.AddInteraction(Interactions.DisableCustomTeeth.Singleton, true);
+                sim.AddInteraction(Interactions.ApplyTeeth.SingletonCheat, true);
+                sim.AddInteraction(Interactions.ResetTeeth.Singleton, true);
+                sim.AddInteraction(Interactions.ResetTeeth.SingletonCheat, true);
             }
         }
     }

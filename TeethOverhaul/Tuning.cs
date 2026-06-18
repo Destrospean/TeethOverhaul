@@ -11,6 +11,9 @@ namespace Sims3.Gameplay.SimsVerse
         public static bool kAutoRandomizeTeethOnSimInstantiated;
 
         [Tunable]
+        public static bool kInteractionsAreCheats;
+
+        [Tunable]
         public static bool kShowCheatInteractions;
     }
 }

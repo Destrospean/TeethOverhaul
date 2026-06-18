@@ -9,15 +9,14 @@ using Sims3.SimIFace;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TeethOverhaul")]
+[assembly: AssemblyTitle("SimsVerse.TeethOverhaul")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TeethOverhaul")]
+[assembly: AssemblyProduct("SimsVerse.TeethOverhaul")]
 [assembly: AssemblyCopyright("Copyright 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: PersistableStatic]
 [assembly: Tunable]
 
 // This sets the default COM visibility of types in the assembly to invisible.

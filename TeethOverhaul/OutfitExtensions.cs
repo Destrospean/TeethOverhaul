@@ -45,14 +45,6 @@ namespace SimsVerse.TeethOverhaul
                     }
                 }
             }
-            Dictionary<uint, int> specialOutfitIndices = new Dictionary<uint, int>();
-            if (simDescription.mSpecialOutfitIndices != null)
-            {
-                foreach (KeyValuePair<uint, int> specialOutfitIndexKvp in simDescription.mSpecialOutfitIndices)
-                {
-                    specialOutfitIndices.Add(specialOutfitIndexKvp.Key, simDescription.mSpecialOutfitIndices.Count - 1 - specialOutfitIndexKvp.Value);
-                }
-            }
             foreach (OutfitCategories outfitCategory in simDescription.ListOfCategories)
             {
                 System.Collections.ArrayList outfits = simDescription.Outfits[outfitCategory] as System.Collections.ArrayList;
@@ -66,14 +58,6 @@ namespace SimsVerse.TeethOverhaul
                     {
                         simDescription.ReplaceOutfit(outfitCategory, i, outfitFunc(simBuilder, outfitCategory, i));
                     }
-                }
-            }
-            if (simDescription.mSpecialOutfitIndices != null)
-            {
-                simDescription.mSpecialOutfitIndices.Clear();
-                foreach (KeyValuePair<uint, int> specialOutfitIndexKvp in specialOutfitIndices)
-                {
-                    simDescription.mSpecialOutfitIndices.Add(specialOutfitIndexKvp.Key, specialOutfitIndexKvp.Value);
                 }
             }
             if (simDescription.CreatedSim != null && !spin)
@@ -94,17 +78,8 @@ namespace SimsVerse.TeethOverhaul
         {
             if (newOutfit != null && newOutfit.IsValid)
             {
-                if (outfitCategory == OutfitCategories.Special)
-                {
-                    uint key = simDescription.GetSpecialOutfitKeyForIndex(outfitIndex);
-                    simDescription.RemoveSpecialOutfit(key);
-                    simDescription.AddSpecialOutfit(newOutfit, key);
-                }
-                else
-                {
-                    simDescription.RemoveOutfit(outfitCategory, outfitIndex, true);
-                    simDescription.AddOutfit(newOutfit, outfitCategory, outfitIndex);
-                }
+                simDescription.RemoveOutfitInternal(outfitCategory, outfitIndex, true, simDescription.IsUsingMaternityOutfits);
+                simDescription.AddOutfitInternal(newOutfit, outfitCategory, outfitIndex, simDescription.IsUsingMaternityOutfits, false);
             }
         }
     }
