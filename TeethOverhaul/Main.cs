@@ -80,6 +80,13 @@ namespace SimsVerse.TeethOverhaul
                             }
                             return ListenerAction.Keep;
                         });
+                    foreach (SimDescription simDescription in new System.Collections.Generic.List<SimDescription>(TeethUtils.SimTeethMap.Keys))
+                    {
+                        if (!simDescription.IsHuman)
+                        {
+                            simDescription.ResetTeeth();
+                        }
+                    }
                     foreach (Sim sim in Sims3.Gameplay.Queries.GetObjects<Sim>())
                     {
                         AddInteractions(sim);

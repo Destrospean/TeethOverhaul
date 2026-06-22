@@ -61,8 +61,11 @@ namespace SimsVerse.TeethOverhaul
 
         public static void ApplyTeethToAllOutfits(this SimDescription simDescription, CASPart teeth)
         {
-            SimTeethMap[simDescription] = teeth;
-            simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, teeth));
+            if (simDescription.IsHuman)
+            {
+                SimTeethMap[simDescription] = teeth;
+                simDescription.ApplyToAllOutfits((simBuilder, outfitCategory, outfitIndex) => simDescription.ApplyTeethToOutfit(simBuilder, outfitCategory, outfitIndex, teeth));
+            }
         }
 
         public static SimOutfit ApplyTeethToOutfit(this SimDescription simDescription, SimBuilder simBuilder, OutfitCategories outfitCategory, int outfitIndex, CASPart teeth)
@@ -153,8 +156,11 @@ namespace SimsVerse.TeethOverhaul
                 {
                     simBuilder.PrepareForOutfit(simDescription.GetOutfit(outfitCategory, outfitIndex));
                     simBuilder.RemoveParts(BodyTypes.Face);
-                    simBuilder.AddPart(new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName()), 0x34AEECB, 0));
-                    return new SimOutfit(simBuilder.CacheOutfit(string.Format("DisableCustomTeeth_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
+                    if (simDescription.IsHuman)
+                    {
+                        simBuilder.AddPart(new ResourceKey(ResourceUtils.HashString64(simDescription.GetFacePartName()), 0x34AEECB, 0));
+                    }
+                    return new SimOutfit(simBuilder.CacheOutfit(string.Format("ResetTeeth_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
                 });
         }
 

@@ -36,7 +36,7 @@ namespace SimsVerse.TeethOverhaul
 
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !Tuning.kInteractionsAreCheats && target.IsHuman;
+                    return !Tuning.kInteractionsAreCheats && Tuning.kShowInteractions && target.IsHuman;
                 }
             }
 
@@ -45,7 +45,7 @@ namespace SimsVerse.TeethOverhaul
             {
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return Tuning.kInteractionsAreCheats && Tuning.kShowCheatInteractions && target.IsHuman;
+                    return Tuning.kInteractionsAreCheats && Tuning.kShowInteractions && target.IsHuman;
                 }
             }
 
@@ -112,7 +112,7 @@ namespace SimsVerse.TeethOverhaul
 
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    if (Tuning.kInteractionsAreCheats)
+                    if (!target.IsHuman || Tuning.kInteractionsAreCheats || !Tuning.kShowInteractions)
                     {
                         return false;
                     }
@@ -129,7 +129,7 @@ namespace SimsVerse.TeethOverhaul
                         greyedOutTooltipCallback = CreateTooltipCallback(Localization.LocalizeString(target.IsFemale, sLocalizationKey + ":Selected"));
                         return false;
                     }
-                    return target.IsHuman;
+                    return true;
                 }
             }
 
@@ -155,7 +155,7 @@ namespace SimsVerse.TeethOverhaul
 
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    if (!Tuning.kInteractionsAreCheats || !Tuning.kShowCheatInteractions)
+                    if (!target.IsHuman || !Tuning.kInteractionsAreCheats || !Tuning.kShowInteractions)
                     {
                         return false;
                     }
@@ -172,7 +172,7 @@ namespace SimsVerse.TeethOverhaul
                         greyedOutTooltipCallback = CreateTooltipCallback(Localization.LocalizeString(target.IsFemale, sLocalizationKey + ":Selected"));
                         return false;
                     }
-                    return target.IsHuman;
+                    return true;
                 }
             }
 
@@ -212,7 +212,7 @@ namespace SimsVerse.TeethOverhaul
 
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !Tuning.kInteractionsAreCheats && target.IsHuman && target.SimDescription.HasCustomTeeth();
+                    return !Tuning.kInteractionsAreCheats && Tuning.kShowInteractions && target.IsHuman && target.SimDescription.HasCustomTeeth();
                 }
             }
 
@@ -221,7 +221,7 @@ namespace SimsVerse.TeethOverhaul
             {
                 public override bool Test(Sim actor, Sim target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return Tuning.kInteractionsAreCheats && Tuning.kShowCheatInteractions && target.IsHuman && target.SimDescription.HasCustomTeeth();
+                    return Tuning.kInteractionsAreCheats && Tuning.kShowInteractions && target.IsHuman && target.SimDescription.HasCustomTeeth();
                 }
             }
 

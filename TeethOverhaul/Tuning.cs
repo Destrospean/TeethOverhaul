@@ -14,6 +14,6 @@ namespace Sims3.Gameplay.SimsVerse
         public static bool kInteractionsAreCheats;
 
         [Tunable]
-        public static bool kShowCheatInteractions;
+        public static bool kShowInteractions;
     }
 }
