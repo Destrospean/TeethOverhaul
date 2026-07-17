@@ -90,6 +90,11 @@ namespace SimsVerse.TeethOverhaul
             return new SimOutfit(simBuilder.CacheOutfit(string.Format("ApplyTeethToOutfit_{0}_{1}_{2}", simDescription.SimDescriptionId, outfitCategory, outfitIndex)));
         }
 
+        public static string GetFacePartName(this SimBuilder simBuilder)
+        {
+            return OutfitUtils.GetAgePrefix(simBuilder.Age) + (simBuilder.Age < CASAgeGenderFlags.Teen ? "u" : OutfitUtils.GetGenderPrefix(simBuilder.Gender)) + "Face";
+        }
+
         public static string GetFacePartName(this SimDescription simDescription)
         {
             return OutfitUtils.GetAgePrefix(simDescription.Age) + (simDescription.ChildOrBelow ? "u" : OutfitUtils.GetGenderPrefix(simDescription.Gender)) + "Face";
@@ -139,6 +144,17 @@ namespace SimsVerse.TeethOverhaul
         public static bool IsDefault(this CASPart teeth)
         {
             return Array.Find(TeethEntries, x => x.CASPart.Equals(teeth)).Default;
+        }
+
+        public static void ReapplyTeeth(this SimBuilder simBuilder, SimOutfit outfit)
+        {
+            CASPart? teeth;
+            if (outfit.TryGetTeeth(out teeth))
+            {
+                simBuilder.RemoveParts(BodyTypes.Face);
+                simBuilder.AddPart(new ResourceKey(ResourceUtils.HashString64(simBuilder.GetFacePartName() + "_Toothless"), 0x34AEECB, 0));
+                simBuilder.AddPart(teeth.Value);
+            }
         }
 
         public static void ResetTeeth(this SimDescription simDescription, bool simDescriptionIsDisposed = false)

@@ -14,6 +14,7 @@ namespace SimsVerse.TeethOverhaul
 
         static Main()
         {
+            ReplaceMethod(typeof(OutfitUtils).GetMethod("SetOutfit", Array.ConvertAll(typeof(Replacements).GetMethod("SetOutfit").GetParameters(), x => x.ParameterType)), typeof(Replacements).GetMethod("SetOutfit"));
             EventListener simAgeTransitionListener = null,
             simDescriptionDisposedListener = null,
             simInstantiatedListener = null;
@@ -114,6 +115,18 @@ namespace SimsVerse.TeethOverhaul
                 sim.AddInteraction(Interactions.ApplyTeeth.SingletonCheat, true);
                 sim.AddInteraction(Interactions.ResetTeeth.Singleton, true);
                 sim.AddInteraction(Interactions.ResetTeeth.SingletonCheat, true);
+            }
+        }
+
+        /// <summary>This method was borrowed from Lazy Duchess' Mono Patcher</summary>
+        public static void ReplaceMethod(System.Reflection.MethodInfo oldMethod, System.Reflection.MethodInfo newMethod)
+        {
+            unsafe
+            {
+                byte[] replacementByteArray = new byte[40];
+                System.Runtime.InteropServices.Marshal.Copy(newMethod.MethodHandle.Value, replacementByteArray, 0, 40);
+                System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 0, oldMethod.MethodHandle.Value, 24);
+                System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 28, new IntPtr(oldMethod.MethodHandle.Value.ToInt32() + 28), 12);
             }
         }
     }
