@@ -9,7 +9,7 @@ namespace Destrospean.TeethOverhaul.Generator
 {
     class Program
     {
-        public enum Locales
+        enum Locales
         {
             ENG_US,
             CHS_CN,
@@ -39,19 +39,19 @@ namespace Destrospean.TeethOverhaul.Generator
         public static void Main(string[] args)
         {
             // Create a new package to clone to
-            var newPackage = s3pi.Package.Package.NewPackage(0);
+            var package = s3pi.Package.Package.NewPackage(0);
 
             // Get the XML
             var xmlDocument = new XmlDocument();
             if (args.Length == 0)
             {
-                var templateXMLPath = AppDomain.CurrentDomain.BaseDirectory + "Template.xml";
-                if (!File.Exists(templateXMLPath))
+                var templateXmlPath = AppDomain.CurrentDomain.BaseDirectory + "Template.xml";
+                if (!File.Exists(templateXmlPath))
                 {
-                    File.WriteAllText(templateXMLPath, new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.xml")).ReadToEnd());
+                    File.WriteAllText(templateXmlPath, new StreamReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("TeethOverhaul_Base.xml")).ReadToEnd());
                     return; 
                 }
-                xmlDocument.Load(templateXMLPath);
+                xmlDocument.Load(templateXmlPath);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Destrospean.TeethOverhaul.Generator
             for (var i = 0; i < stblResources.Length; i++)
             {
                 var stblKeyInstance = ulong.Parse(i.ToString("X2") + s3saKeyInstance.ToString("X16").Substring(2), System.Globalization.NumberStyles.HexNumber);
-                var stblName = "Strings_" + ((Locales)i).ToString() + "_0x" + stblKeyInstance.ToString("X16");
+                var stblName = "Strings_" + (Locales)i + "_0x" + stblKeyInstance.ToString("X16");
                 stblResources[i] = new StblResource.StblResource(0, null);
                 foreach (var categoryElement in categoryElements)
                 {
@@ -120,19 +120,19 @@ namespace Destrospean.TeethOverhaul.Generator
                 {
                     stblResources[i].Add(ulong.Parse(casPartElement.GetAttribute("Key").Substring(24), System.Globalization.NumberStyles.HexNumber), casPartElement.GetAttribute("Description") ?? "");
                 }
-                newPackage.AddResource(new ResourceKey(0x220557DA, 0, stblKeyInstance), stblResources[i].Stream, true);
+                package.AddResource(new ResourceKey(0x220557DA, 0, stblKeyInstance), stblResources[i].Stream, true);
                 nameMapResource.Add(stblKeyInstance, stblName);
             }
             nameMapResource.Add(s3saKeyInstance, assemblyName);
-            newPackage.AddResource(new ResourceKey(0x166038C, 0, 0), nameMapResource.Stream, true);
-            newPackage.AddResource(new ResourceKey(0x333406C, 0, s3saKeyInstance), xmlStream, true);
-            newPackage.AddResource(new ResourceKey(0x73FAA07, 0, s3saKeyInstance), new ScriptResource.ScriptResource(0, null)
+            package.AddResource(new ResourceKey(0x166038C, 0, 0), nameMapResource.Stream, true);
+            package.AddResource(new ResourceKey(0x333406C, 0, s3saKeyInstance), xmlStream, true);
+            package.AddResource(new ResourceKey(0x73FAA07, 0, s3saKeyInstance), new ScriptResource.ScriptResource(0, null)
                 {
                     Assembly = new BinaryReader(assemblyStream)
                 }.Stream, true);
 
             // Save the new package with the new name
-            newPackage.SaveAs(AppDomain.CurrentDomain.BaseDirectory + assemblyName + ".package");
+            package.SaveAs(AppDomain.CurrentDomain.BaseDirectory + assemblyName + ".package");
         }
     }
 }
